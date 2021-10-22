@@ -1,0 +1,35 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+.venv/
+env/
+
+# Build artifacts
+build_native/
+cmake-build-*/
+*.o
+*.a
+*.dylib
+*.so
+*.out
+bin/fovea-opt-bin
+
+# Output image test artifacts
+*.ppm
+*.pfm
+output_*.png
+output_*.raw
+temp_*
+
+# IDE and OS
+.DS_Store
+.idea/
+.vscode/
