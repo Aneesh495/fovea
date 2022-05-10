@@ -17,30 +17,36 @@ def apply_bilateral_filter(
     inv_two_sigma_s2 = 1.0 / (2.0 * sigma_spatial * sigma_spatial)
     inv_two_sigma_r2 = 1.0 / (2.0 * sigma_range * sigma_range)
 
+    # Precompute spatial Gaussian weight table
+    win_size = 2 * radius + 1
+    spatial_lut = [0.0] * (win_size * win_size)
+    for ky in range(-radius, radius + 1):
+        for kx in range(-radius, radius + 1):
+            d2 = float(kx * kx + ky * ky)
+            spatial_lut[(ky + radius) * win_size + (kx + radius)] = math.exp(-d2 * inv_two_sigma_s2)
+
     out = list(image)
     stride = width * channels
 
     for y in range(radius, height - radius):
+        row_offset = y * stride
         for x in range(radius, width - radius):
+            px_offset = row_offset + x * channels
             for c in range(channels):
-                center_idx = y * stride + x * channels + c
+                center_idx = px_offset + c
                 center_val = image[center_idx]
 
                 sum_weighted = 0.0
                 sum_weights = 0.0
 
                 for ky in range(-radius, radius + 1):
-                    dy = float(ky)
-                    dy2 = dy * dy
                     sample_row = (y + ky) * stride
+                    lut_row = (ky + radius) * win_size
                     for kx in range(-radius, radius + 1):
-                        dx = float(kx)
-                        dx2 = dx * dx
                         sample_idx = sample_row + (x + kx) * channels + c
                         sample_val = image[sample_idx]
 
-                        spatial_dist2 = dx2 + dy2
-                        w_spatial = math.exp(-spatial_dist2 * inv_two_sigma_s2)
+                        w_spatial = spatial_lut[lut_row + (kx + radius)]
 
                         diff = sample_val - center_val
                         range_dist2 = diff * diff
@@ -55,23 +61,19 @@ def apply_bilateral_filter(
     return out
 
 def _box_filter_2d(data: List[float], width: int, height: int, radius: int) -> List[float]:
-    """O(1) moving sum box filter using integral images or separable running sums."""
+    """O(1) moving sum box filter using separable running sums."""
     out = [0.0] * (width * height)
     win_size = 2 * radius + 1
-    inv_area = 1.0 / (win_size * win_size)
 
-    # 1. Horizontal pass
     temp = [0.0] * (width * height)
     for y in range(height):
         row_offset = y * width
-        current_sum = sum(data[row_offset : row_offset + min(width, win_size)])
         for x in range(width):
             x_min = max(0, x - radius)
             x_max = min(width - 1, x + radius)
             cnt = x_max - x_min + 1
             temp[row_offset + x] = sum(data[row_offset + k] for k in range(x_min, x_max + 1)) / cnt
 
-    # 2. Vertical pass
     for x in range(width):
         for y in range(height):
             y_min = max(0, y - radius)
@@ -99,7 +101,6 @@ def apply_guided_filter(
     guide_p = [g * p for g, p in zip(guide, source)]
     mean_Ip = _box_filter_2d(guide_p, width, height, radius)
 
-    # Compute covariance and variance: cov_Ip = mean_Ip - mean_I * mean_p, var_I = mean_II - mean_I * mean_I
     n = width * height
     a = [0.0] * n
     b = [0.0] * n
