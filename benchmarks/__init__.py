@@ -1,0 +1,3 @@
+"""
+Fovea benchmarks suite package.
+"""
