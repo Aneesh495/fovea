@@ -94,23 +94,22 @@ The repository includes a comprehensive, verified suite of MLIR implementations 
 dialects/
 ├── irdl/
 │   └── fovea.irdl.mlir         # Verified MLIR 23 IRDL dialect definition
-├── tablegen/
-│   ├── FoveaDialect.td         # TableGen dialect definition
-│   └── FoveaOps.td             # TableGen operation and trait definitions
-└── generated/                  # 539 verified MLIR files (30,731 total lines)
-    ├── demosaic/               # Malvar-He-Cutler and Bilinear stencils
-    ├── calibration/            # Black level, vignette, and DPC kernels
-    ├── color/                  # White balance, CCM, and sRGB EOTF transforms
-    ├── denoise/                # Joint bilateral and guided filter stencils
-    ├── hdr/                    # Mertens multi-exposure burst fusion
-    └── tonemap/                # Reinhard and ACES filmic curves
+└── tablegen/
+    ├── FoveaDialect.td         # TableGen dialect definition
+    └── FoveaOps.td             # TableGen operation and trait definitions
+
+mlir/                           # 539 verified MLIR files (30,731 total lines)
+├── kernels/                    # Standalone unrolled and parametrized kernels
+├── lowered/                    # Polyhedral affine, SCF, and LLVM lowerings
+├── pipelines/                  # End-to-end multi-stage camera ISP pipelines
+└── benchmarks/                 # Verification and benchmarking suites
 ```
 
 Every single `.mlir` file is validated for syntax and semantic compliance:
 
 ```bash
 # Verify entire 30,731-line suite with LLVM mlir-opt
-find dialects/generated -name "*.mlir" -exec mlir-opt {} --allow-unregistered-dialect -o /dev/null \;
+find mlir/ -name "*.mlir" -exec mlir-opt {} --allow-unregistered-dialect -o /dev/null \;
 ```
 
 ---

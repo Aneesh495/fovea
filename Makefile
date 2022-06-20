@@ -13,7 +13,7 @@ test:
 verify-mlir:
 	@echo "Verifying generated MLIR suite with $(MLIR_OPT)..."
 	@if command -v $(MLIR_OPT) >/dev/null 2>&1; then \
-		find dialects/generated -name "*.mlir" -exec $(MLIR_OPT) {} --allow-unregistered-dialect -o /dev/null \; && \
+		find mlir -name "*.mlir" -exec $(MLIR_OPT) {} --allow-unregistered-dialect -o /dev/null \; && \
 		echo "All MLIR modules verified successfully."; \
 	else \
 		echo "Warning: mlir-opt not found in PATH, skipping binary syntax verification."; \
