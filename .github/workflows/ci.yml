@@ -27,7 +27,7 @@ jobs:
           curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor | sudo tee /usr/share/keyrings/fovea-llvm.gpg >/dev/null
           echo 'deb [signed-by=/usr/share/keyrings/fovea-llvm.gpg] https://apt.llvm.org/noble/ llvm-toolchain-noble-23 main' | sudo tee /etc/apt/sources.list.d/fovea-llvm.list >/dev/null
           sudo apt-get update
-          sudo apt-get install -y mlir-23-tools
+          sudo apt-get install -y mlir-23-tools clang-23
           echo '/usr/lib/llvm-23/bin' >> "$GITHUB_PATH"
 
       - name: Run lint and typography check
